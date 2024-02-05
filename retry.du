@@ -1,0 +1,33 @@
+import Random;
+import System;
+
+
+/**
+ * retry receives a function and at least 1 number. The given function is 
+ * expected to return a Result value. The number represents the number of 
+ * attempts the function is to be run before returning the error result. A
+ * second, optional number can be specified that represents the inital delay
+ * for exponential backoff.
+ */
+def rety(f, retries, backoff=0) {
+    var tried = 0;
+
+    while (true) {
+        const res = f();
+        if (not res.success()) {
+            if (tried == retries) {
+                return res;
+            }
+
+            if (backoff > 0) {
+                const sleep = (backoff * 2**tried + Random.range(0, 1));
+                System.sleep(sleep);
+            }
+            tried += 1;
+
+            continue;
+        }
+
+        return res;        
+    }
+}
